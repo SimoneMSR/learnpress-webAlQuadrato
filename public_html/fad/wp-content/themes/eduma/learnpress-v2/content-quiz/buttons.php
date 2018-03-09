@@ -62,6 +62,8 @@ $question = $quiz->get_current_question();
 			data-security="<?php echo esc_attr( wp_create_nonce( 'start-quiz-' . $user->id . '-' . $course->id . '-' . $quiz->id ) ); ?>">
 			<?php esc_html_e( 'Start Quiz', 'eduma' ); ?>
 		</button>
+	<?php else : ?>
+		<?php learn_press_display_message( __( 'You can\'t start this quiz.', 'eduma' ), 'notice' );?>
 	<?php endif; ?>
 
 	<?php if ( in_array( $status, array( 'started' ) ) ): ?>
