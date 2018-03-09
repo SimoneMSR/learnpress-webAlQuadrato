@@ -1182,6 +1182,8 @@ abstract class LP_Abstract_Course {
 		    $results = $this->_evaluate_course_by_quizzes_results( $user_id, $force, $history_id );
 		} elseif ( 'evaluate_passed_quizzes' === $this->course_result ) {
 		    $results = $this->_evaluate_course_by_passed_quizzes_results( $user_id, $force, $history_id );
+		}elseif ( 'evaluate_lessons_and_quizzes' === $this->course_result){
+			$results = $this->_evaluate_course_by_items( $user_id, $force );
 		}
 
 		return apply_filters( 'learn_press_evaluation_course_results', $results );
