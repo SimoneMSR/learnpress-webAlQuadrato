@@ -146,6 +146,13 @@
             units=units.concat("m:s)");
             this.$('.countup').html(strTime.join(':') + " " + units);
         },
+        tryShowCompleteButton : function(){
+        	var completeButton = this.$('.button-complete-item');
+        	if( completeButton && completeButton.hasClass("hide") ){
+        		completeButton.removeClass("hide");
+        	}
+
+        },
         _secondsToDHMS: function (t) {
             var d = Math.floor(t / (24 * 3600)), t = t - d * 24 * 3600, h = Math.floor(t / 3600), t = t - h * 3600,
                 m = Math.floor(t / 60), s = Math.floor(t - m * 60);
@@ -154,6 +161,8 @@
         _onTick: function () {
             this.model.set('timer',this.model.get('timer')+1);
             this.updateCountup();
+            if( window.$LP_Lesson && this.model.get('timer') > window.$LP_Lesson.model.get('duration'))
+            	this.tryShowCompleteButton();
             this.timeout = setTimeout(this._onTick, 1000);
         },
         _addLeadingZero: function (n) {

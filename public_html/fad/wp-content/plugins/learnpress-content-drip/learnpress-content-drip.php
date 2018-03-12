@@ -524,7 +524,9 @@ class LP_Addon_Content_Drip {
 					);
 				}
 
-				_ajax_attending_schedule();
+				setTimeout(function () {
+								_ajax_attending_schedule();
+							}, 60000);
 			});
 		</script>
 		<?php

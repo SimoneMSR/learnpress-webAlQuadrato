@@ -76,7 +76,7 @@ $attended_time = $user->get_lesson_attended_time_html($lesson->ID);
 		
 	</style>
 	<div class='slideout'>
-		<div class='timer'>TIMER</div>
+		<div class='timer'><?php echo __( 'TIMER', 'learnpress' ); ?></div>
 		<div class='slideout_inner'>
 			<span class='fa fa-clock-o'></span>
     		<span class='countup'><?php echo $attended_time?></span>

@@ -19,6 +19,13 @@ $block_option = get_post_meta( $course->id, '_lp_block_lesson_content', true );
 $duration     = $course->get_user_duration_html( $user->id, true );
 $user_data = get_userdata( $user->ID );
 $admin     = false;
+$lesson_settings = $item->get_settings( $user->id, $course->id );
+
+
+$_duration_relative = get_post_meta( $item->id, '_lp_duration', true);
+$_duration = strtotime( "+{$_duration_relative}", time() ) - time();
+$lesson_settings += [ "duration" => $_duration ];
+
 if ( $user_data && in_array( 'administrator', $user_data->roles ) ) {
 	$admin = true;
 }
@@ -45,12 +52,13 @@ if ( ! $admin && $course->is_expired() <= 0 && ( $block_option == 'yes' ) && ( g
 				<input type="hidden" name="type" value="lp_lesson"/>
 				<input type="hidden" name="lp-ajax" value="complete-item"/>
 				<?php 
-					$_duration_relative = get_post_meta( $item->id, '_lp_duration', true);
-					$_duration = strtotime( "+{$_duration_relative}", time() ) - time();
+
 					$is_plugin_active = is_plugin_active( 'learnpress-content-drip/learnpress-content-drip.php' );
 					$lesson_attended_for = learn_press_get_user_item_meta($user->get_item_id($item->id),'attended_for');
-					if ( !$is_plugin_active || $lesson_attended_for > $_duration  ) { ?>
-				  <button class="button-complete-item button-complete-lesson"><?php echo __( 'Complete', 'learnpress' ); ?></button>
+					if ( $is_plugin_active && $lesson_attended_for < $_duration  ) { ?>
+				  <button class="button-complete-item hide button-complete-lesson"><?php echo __( 'Complete', 'learnpress' ); ?></button>
+				 <?php } else { ?>
+				 		<button class="button-complete-item button-complete-lesson"><?php echo __( 'Complete', 'learnpress' ); ?></button>
 				<?php }; ?>
 			</form>
 		<?php } ?>
@@ -59,5 +67,5 @@ if ( ! $admin && $course->is_expired() <= 0 && ( $block_option == 'yes' ) && ( g
 
 <?php LP_Assets::enqueue_script( 'learn-press-course-lesson' ); ?>
 
-<?php LP_Assets::add_var( 'LP_Lesson_Params', wp_json_encode( $item->get_settings( $user->id, $course->id ) ), '__all' ); ?>
+<?php LP_Assets::add_var( 'LP_Lesson_Params', wp_json_encode( $lesson_settings ), '__all' ); ?>
 
