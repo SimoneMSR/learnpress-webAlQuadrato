@@ -1138,12 +1138,13 @@ abstract class LP_Abstract_Course {
 		$items  = $this->get_curriculum_items();
 		$result = 0;
 		if ( $items ) {
-			$completed_items = $this->count_completed_items( $user_id, $force, $type );
-			$result          = round( $completed_items / sizeof( $items ) * 100 );
+			$completed_lessons = $this->count_completed_items( $user_id, $force, 'lp_lesson' );
+			$result          = round( $completed_lessons / sizeof( $items ) * 100 );
 		}
 
 		return apply_filters( 'learn_press_course_results_by_items', $result, $this->id, $user_id );
 	}
+
 
 	protected function _evaluate_course_by_lessons( $user_id = 0, $force = false, $type = '' ) {
 		$lessons = $this->get_lessons();
@@ -1183,7 +1184,7 @@ abstract class LP_Abstract_Course {
 		} elseif ( 'evaluate_passed_quizzes' === $this->course_result ) {
 		    $results = $this->_evaluate_course_by_passed_quizzes_results( $user_id, $force, $history_id );
 		}elseif ( 'evaluate_lessons_and_quizzes' === $this->course_result){
-			$results = $this->_evaluate_course_by_items( $user_id, $force );
+			$results = $this->_evaluate_course_by_lessons_and_quizzes( $user_id, $force );
 		}
 
 		return apply_filters( 'learn_press_evaluation_course_results', $results );
@@ -1243,6 +1244,28 @@ abstract class LP_Abstract_Course {
 		return apply_filters( 'learn_press_enable_evaluate_course_item', true, $item_id, $user_id, $this->id );
 	}
 
+	public function get_passed_quizzes( $user_id, $force = false, $history_id=0 ) {
+		$quizzes        = $this->get_quizzes();
+		$user           = learn_press_get_user( $user_id );
+		$retval         = 0;
+		foreach ( $quizzes as $_quiz ) {
+			if ( ! $this->enable_evaluate_item( $_quiz->ID, $user_id ) ) {
+				continue;
+			}
+			$quiz = LP_Quiz::get_quiz( $_quiz->ID );
+			$quiz_obj 		= learn_press_get_quiz($quiz->ID);
+			if( 'no' == $quiz_obj->passing_grade_type ) {
+			    continue;
+			}
+			$grade = $user->get_quiz_graduation( $quiz->id, $this->id );
+
+			if ( $grade == 'passed' )
+			    $retval++;
+		}
+
+		return $retval;
+	}
+
 	public function _evaluate_course_by_passed_quizzes_results( $user_id, $force = false, $history_id=0 ) {
 		$quizzes        = $this->get_quizzes();
 		$user           = learn_press_get_user( $user_id );
@@ -1288,6 +1311,18 @@ abstract class LP_Abstract_Course {
 		}
 
 		return apply_filters( 'learn_press_evaluate_course_by_passed_quizzes_results', $result, $this->id, $user_id );
+	}
+
+	protected function _evaluate_course_by_lessons_and_quizzes( $user_id = 0, $force = false, $type = '' ) {
+		$items  = $this->get_curriculum_items();
+		$result = 0;
+		if ( $items ) {
+			$completed_lessons = $this->count_completed_items( $user_id, $force, 'lp_lesson' );
+			$passed_quizzes    = $this->get_passed_quizzes($user_id);
+			$result = round( ($completed_lessons+$passed_quizzes) / sizeof( $items ) * 100 );
+		}
+
+		return apply_filters( 'learn_press_course_results_by_items', $result, $this->id, $user_id );
 	}
 
 	public function _get_total_question( $quizzes_ids = array() ) {

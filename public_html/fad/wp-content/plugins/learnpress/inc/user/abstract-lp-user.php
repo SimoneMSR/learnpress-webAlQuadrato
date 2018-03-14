@@ -3043,7 +3043,7 @@ class LP_Abstract_User {
 		if ( $course->is_require_enrollment() ) {
 			$can = $this->has_course_status( $course_id, array( 'enrolled' ) ) && ! $this->has( 'started-quiz', $quiz_id, $course_id );
 			if($can && $course->is_evaluation('evaluate_lessons_and_quizzes')){
-				$completed_lessons_n = sizeof( $course->get_completed_lessons( $this->id ) );
+				$completed_lessons_n = $course->get_completed_lessons( $this->id );
 				$lessons_n = sizeof($course->get_lessons(array( 'field' => 'ID' )));
 				$can = $completed_lessons_n == $lessons_n;
 			}
